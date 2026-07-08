@@ -23,16 +23,27 @@
 ## 快速开始
 
 ```bash
-# 1. 安装依赖
+git clone git@github.com:WJX1317/MoneyTree.git
+cd MoneyTree
+bash setup.sh
+```
+
+一键脚本会自动完成：安装依赖 → 交互式填写配置 → 建库建表 → 下载前端 JS → 启动服务。
+
+### 手动部署
+
+如果脚本不适用，手动步骤如下：
+
+```bash
+# 1. 安装依赖（Python 3.9+）
 pip install -r requirements.txt
 
 # 2. 配置环境变量
 cp .env.example .env
-# 编辑 .env 填入你的 API key 和数据库配置
+# 编辑 .env，填入 API_KEY、BASE_URL 等
 
-# 3. 创建数据库
-mysql -u root -e "CREATE DATABASE moneytree;"
-mysql -u root moneytree < schema.sql
+# 3. 初始化数据库
+mysql -u root < schema.sql
 
 # 4. 下载前端依赖
 curl -sL "https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js" -o frontend/js/markdown-it.min.js
@@ -42,6 +53,19 @@ curl -sL "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" -o fronte
 python run.py
 # 访问 http://localhost:8000
 ```
+
+### 环境变量说明
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| API_KEY | LLM API 密钥 | sk-xxx |
+| BASE_URL | OpenAI 兼容接口地址 | https://api.openai.com/v1 |
+| MODEL_ID | 模型名称 | claude-sonnet-4-6 |
+| MYSQL_HOST | MySQL 地址 | localhost |
+| MYSQL_PORT | MySQL 端口 | 3306 |
+| MYSQL_USER | MySQL 用户名 | root |
+| MYSQL_PASSWORD | MySQL 密码 | （空） |
+| MYSQL_DB | 数据库名 | moneytree |
 
 ## 知识树状态机
 
