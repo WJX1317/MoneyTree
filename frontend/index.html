@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyTree - 金融知识学习</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .bubble table { border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 0.85rem; }
+        .bubble th, .bubble td { border: 1px solid #475569; padding: 4px 8px; text-align: left; }
+        .bubble th { background: #334155; }
+        .bubble code { background: #334155; padding: 2px 5px; border-radius: 3px; font-size: 0.85em; }
+        .bubble pre { background: #1e293b; padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+        .bubble pre code { background: none; padding: 0; }
+        .bubble ul, .bubble ol { padding-left: 1.2em; margin: 4px 0; }
+        .bubble h1, .bubble h2, .bubble h3, .bubble h4 { margin: 8px 0 4px; }
+        .bubble p { margin: 4px 0; }
+        .mermaid { background: #f8fafc; border-radius: 6px; padding: 12px; margin: 8px 0; }
+        .transition-buttons { display: flex; gap: 12px; justify-content: center; padding: 12px; }
+        .btn-continue { padding: 8px 20px; border: 1px solid #94a3b8; border-radius: 8px; background: transparent; color: #e2e8f0; cursor: pointer; font-size: 0.9rem; }
+        .btn-continue:hover { background: #334155; }
+        .btn-verify { padding: 8px 20px; border: none; border-radius: 8px; background: #10b981; color: white; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .btn-verify:hover { background: #059669; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>MoneyTree</h1>
+                <p class="subtitle">你的金融学习伙伴</p>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-item active" data-view="learn">学习</a>
+                <a href="#" class="nav-item" data-view="journal">投资日记</a>
+                <a href="#" class="nav-item" data-view="passport">学习护照</a>
+            </div>
+            <div class="goal-section" id="goal-section">
+                <h3>知识树</h3>
+                <div id="tree-container"></div>
+            </div>
+        </nav>
+        <main class="main-content">
+            <div class="view active" id="view-learn">
+                <div class="learn-header">
+                    <div id="goal-selector">
+                        <select id="goal-select">
+                            <option value="">-- 选择学习目标 --</option>
+                        </select>
+                        <button id="new-goal-btn">+ 新目标</button>
+                    </div>
+                    <div id="current-node-info"></div>
+                </div>
+                <div class="chat-container" id="chat-container">
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="输入你的回答或问题..." disabled>
+                        <button id="chat-send" disabled>发送</button>
+                    </div>
+                </div>
+            </div>
+            <div class="view" id="view-journal">
+                <div class="journal-header">
+                    <h2>投资日记</h2>
+                    <button id="new-journal-btn">+ 新记录</button>
+                </div>
+                <div id="journal-list"></div>
+                <div class="modal" id="journal-modal" style="display:none;">
+                    <div class="modal-content">
+                        <h3>添加投资记录</h3>
+                        <form id="journal-form">
+                            <label>日期 <input type="date" name="date" required></label>
+                            <label>操作 <select name="action"><option>买入</option><option>卖出</option><option>定投</option><option>观察</option></select></label>
+                            <label>资产 <input type="text" name="asset" placeholder="如：沪深300ETF" required></label>
+                            <label>数量 <input type="text" name="amount" placeholder="可选"></label>
+                            <label>成本 <input type="text" name="cost" placeholder="可选"></label>
+                            <label>理由 <textarea name="reason" placeholder="为什么做这个决定？"></textarea></label>
+                            <div class="modal-actions">
+                                <button type="submit">保存</button>
+                                <button type="button" id="cancel-journal">取消</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="view" id="view-passport">
+                <h2>学习护照</h2>
+                <div id="passport-content"></div>
+            </div>
+        </main>
+    </div>
+    <div class="modal" id="goal-modal" style="display:none;">
+        <div class="modal-content">
+            <h3>创建学习目标</h3>
+            <p>输入你想学的金融知识方向：</p>
+            <input type="text" id="goal-input" placeholder="如：理解基金定投策略">
+            <div class="modal-actions">
+                <button id="goal-submit">开始规划</button>
+                <button id="goal-cancel">取消</button>
+            </div>
+            <div id="goal-loading" style="display:none;">正在为你规划知识树...</div>
+        </div>
+    </div>
+    <script src="/static/js/markdown-it.min.js"></script>
+    <script src="/static/js/mermaid.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/tree.js"></script>
+    <script src="/static/js/chat.js"></script>
+    <script src="/static/js/journal.js"></script>
+</body>
+</html>
