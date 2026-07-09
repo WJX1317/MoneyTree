@@ -106,32 +106,88 @@ async function loadCurrentNode(goalId) {
 
 async function switchToNode(node) {
     state.currentNodeId = node.id;
-    state.currentPhase = node.status === 'learned' ? 'verify' : 'teach';
+    if (node.status === 'verified') {
+        state.currentPhase = 'verify';
+    } else if (node.status === 'learned') {
+        state.currentPhase = 'teach';
+    } else {
+        state.currentPhase = 'teach';
+    }
 
     const info = document.getElementById('current-node-info');
     info.style.display = 'block';
-    info.textContent = state.currentPhase === 'teach'
-        ? `当前学习：${node.title}`
-        : `验证理解：${node.title}`;
+    if (node.status === 'verified') {
+        info.textContent = `已掌握：${node.title}`;
+    } else {
+        info.textContent = `当前学习：${node.title}`;
+    }
 
-    enableChat();
     clearChat();
     highlightNode(node.id);
-    await loadChatHistory(node.id);
+    enableChat();
+    document.getElementById('chat-input').value = '';
+
+    if (typeof abortController !== 'undefined' && abortController) {
+        abortController.abort();
+        removeLoading();
+        isSending = false;
+        abortController = null;
+    }
+
+    if (node.status === 'verified') {
+        await loadFullHistory(node.id);
+    } else {
+        await loadChatHistory(node.id);
+    }
+}
+
+async function loadFullHistory(nodeId) {
+    const res = await fetch(`/api/chat/history/${nodeId}`);
+    const data = await res.json();
+    if (!data.history || data.history.length === 0) return;
+
+    data.history.forEach(msg => {
+        appendMessage(msg.role, msg.content, msg.time);
+    });
 }
 
 async function loadChatHistory(nodeId) {
     const res = await fetch(`/api/chat/history/${nodeId}`);
     const data = await res.json();
-    if (data.history && data.history.length > 0) {
-        const phase = state.currentPhase;
-        const filtered = data.history.filter(msg => msg.phase === phase);
-        if (filtered.length > 0) {
-            filtered.forEach(msg => {
-                appendMessage(msg.role, msg.content);
-            });
-        } else {
-            await sendMessage('');
+    if (!data.history || data.history.length === 0) {
+        await sendMessage('');
+        return;
+    }
+
+    const verifyMsgs = data.history.filter(msg => msg.phase === 'verify');
+    const teachMsgs = data.history.filter(msg => msg.phase === 'teach');
+
+    if (verifyMsgs.length > 0) {
+        state.currentPhase = 'verify';
+        const info = document.getElementById('current-node-info');
+        const treeRes = await fetch(`/api/tree/${state.currentGoalId}`);
+        const treeData = await treeRes.json();
+        const nodeObj = treeData.nodes.find(n => n.id === nodeId);
+        if (nodeObj) info.textContent = `验证理解：${nodeObj.title}`;
+
+        teachMsgs.forEach(msg => appendMessage(msg.role, msg.content, msg.time));
+
+        const container = document.getElementById('chat-messages');
+        const divider = document.createElement('div');
+        divider.className = 'phase-divider';
+        divider.innerHTML = '<span>验证环节 - 请用自己的话解释</span>';
+        container.appendChild(divider);
+
+        verifyMsgs.forEach(msg => appendMessage(msg.role, msg.content, msg.time));
+    } else if (teachMsgs.length > 0) {
+        state.currentPhase = 'teach';
+        teachMsgs.forEach(msg => appendMessage(msg.role, msg.content, msg.time));
+
+        const treeRes = await fetch(`/api/tree/${state.currentGoalId}`);
+        const treeData = await treeRes.json();
+        const nodeObj = treeData.nodes.find(n => n.id === nodeId);
+        if (nodeObj && nodeObj.status === 'learned') {
+            showVerifyTransition(nodeObj.title);
         }
     } else {
         await sendMessage('');
@@ -141,11 +197,13 @@ async function loadChatHistory(nodeId) {
 function disableChat() {
     document.getElementById('chat-input').disabled = true;
     document.getElementById('chat-send').disabled = true;
+    document.getElementById('chat-undo').disabled = true;
 }
 
 function enableChat() {
     document.getElementById('chat-input').disabled = false;
     document.getElementById('chat-send').disabled = false;
+    document.getElementById('chat-undo').disabled = false;
 }
 
 loadGoals();

@@ -257,6 +257,86 @@ body {
     cursor: not-allowed;
 }
 
+#chat-undo {
+    padding: 12px 14px;
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#chat-undo:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+#chat-undo:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.phase-divider {
+    text-align: center;
+    margin: 20px 0;
+    color: #f59e0b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    position: relative;
+}
+
+.phase-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: #f59e0b;
+    opacity: 0.3;
+}
+
+.phase-divider span {
+    background: #fff;
+    padding: 0 16px;
+    position: relative;
+}
+
+.msg-time {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    padding: 0 4px;
+}
+
+.message.user .msg-time {
+    text-align: right;
+}
+
+.quick-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+.quick-opt-btn {
+    padding: 6px 14px;
+    border: 1px solid #4ade80;
+    border-radius: 16px;
+    background: transparent;
+    color: #4ade80;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.quick-opt-btn:hover {
+    background: #4ade80;
+    color: #1a1a2e;
+}
+
 .modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;

@@ -71,13 +71,37 @@ def chat_endpoint(body: ChatRequest):
             sort_order=node["sort_order"],
             history=[{"role": m["role"], "content": m["content"]} for m in teach_history],
         )
-        save_message(body.node_id, "assistant", result["reply"], phase="teach")
+
+        reply = result["reply"]
+        options = []
+        import re
+        opt_match = re.search(r'\[OPTIONS:\s*(.+?)\]', reply)
+        if opt_match:
+            options = [o.strip() for o in opt_match.group(1).split('|') if o.strip()]
+            reply = reply[:opt_match.start()].rstrip()
+
+        save_message(body.node_id, "assistant", reply, phase="teach")
         return {
-            "reply": result["reply"],
+            "reply": reply,
             "teaching_complete": result["teaching_complete"],
             "verified": False,
             "phase": "teach",
+            "options": options,
         }
+
+
+@router.post("/undo/{node_id}")
+def undo_last_pair(node_id: str):
+    from backend.services.conversation import delete_last_n
+    delete_last_n(node_id, 2)
+    return {"ok": True}
+
+
+@router.post("/undo-last/{node_id}")
+def undo_last_message(node_id: str):
+    from backend.services.conversation import delete_last_n
+    delete_last_n(node_id, 1)
+    return {"ok": True}
 
 
 @router.delete("/history/{node_id}")
